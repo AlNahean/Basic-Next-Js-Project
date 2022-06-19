@@ -1,8 +1,30 @@
+import { useState, useEffect } from "react";
+// import { useSession, getSession, signIn, signOut } from "next-auth/client";
+import { useSession, getSession, signIn, signOut } from "next-auth/react";
+
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "../styles/Home.module.css";
 export default function Home() {
+  const [isLogedIn, setIsLogedIn] = useState();
+  const { data: session, status } = useSession();
+
+  useEffect(() => {
+    console.log(session, status);
+    return () => {};
+  }, [session, status]);
+
+  if (status === "loading") {
+    return <div>Loading</div>;
+  }
+
+  const getStringDate = () => {
+    var date = new Date(session.expires);
+    console.log(date);
+
+    return date.toISOString().substring(0, 10);
+  };
   return (
     <div className="">
       <Head>
@@ -35,6 +57,42 @@ export default function Home() {
               </Link>
             </li>
           </ul>
+
+          <div className=" row justify-content-center">
+            <div className=" col-12 col-md-6">
+              {session ? (
+                <div className=" card">
+                  <div className=" card-body d-flex align-items-center flex-column">
+                    <img
+                      src={session.user.image}
+                      alt=""
+                      style={{
+                        height: "300px",
+                        width: "300px",
+                      }}
+                      // className=" w-100 d-flex justify-content-center"
+                    />
+
+                    <h1>{session.user.name}</h1>
+
+                    <h3>{session.user.email}</h3>
+                    <p>{getStringDate()}</p>
+
+                    <div onClick={() => signOut()} className=" btn btn-danger">
+                      Sign Out
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div onClick={() => signIn()} className=" btn btn-dark">
+                    {" "}
+                    Sign In with Github
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </main>
 
